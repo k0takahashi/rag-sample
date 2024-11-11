@@ -1,0 +1,4 @@
+.env
+*_chunks.txt
+chroma_db
+chroma_db_azure
