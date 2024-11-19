@@ -56,7 +56,7 @@ py -3.11 -m pip install -r requirements.txt
 3. コマンドプロンプトで以下のコマンドを実行し、必要なモデルをインストール：
 ```bash
 # 埋め込みモデル
-ollama pull kun432/cl-nagoya-ruri-large
+ollama pull jeffh/intfloat-multilingual-e5-large:f16
 
 # 生成モデル
 ollama run schroneko/gemma-2-2b-jpn-it

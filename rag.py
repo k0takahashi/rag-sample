@@ -6,9 +6,10 @@ from langchain_core.output_parsers import StrOutputParser
 from typing import Iterator
 
 # モデルとパスの設定
-EMBEDDING_MODEL = "kun432/cl-nagoya-ruri-large"
+EMBEDDING_MODEL = "jeffh/intfloat-multilingual-e5-large:f16"
 GENERATION_MODEL = "schroneko/gemma-2-2b-jpn-it"
 PERSIST_DIR = "./chroma_db"
+GPU_SERVER = "http://127.0.0.1:11434"
 
 # プロンプトテンプレート
 RAG_TEMPLATE = """
@@ -41,13 +42,12 @@ def search_and_generate(query: str) -> Iterator[str]:
     Returns:
         str: 生成された回答
     """
+
+    # 埋め込みモデルのmultilingual-e5で必要なprefixを追加 (query: )
+    query = "query: " + query
+
     # ベクトルストアの準備
-    embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL)
-    # # Azure OpenAI Embeddings
-    # from langchain_openai import AzureOpenAIEmbeddings
-    # from dotenv import load_dotenv
-    # load_dotenv()  # .envの読込
-    # embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
+    embeddings = OllamaEmbeddings(base_url=GPU_SERVER, model=EMBEDDING_MODEL)
     vectorstore = Chroma(
         persist_directory=PERSIST_DIR,
         embedding_function=embeddings
@@ -111,7 +111,7 @@ def search_and_generate(query: str) -> Iterator[str]:
             "question": RunnablePassthrough()
         })
         | print_prompt
-        | OllamaLLM(model=GENERATION_MODEL)
+        | OllamaLLM(base_url=GPU_SERVER, model=GENERATION_MODEL)
         | StrOutputParser()
     )
 

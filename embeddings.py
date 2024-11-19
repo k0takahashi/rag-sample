@@ -9,7 +9,7 @@ PDF_PATH = "./pdf/sample_rules.pdf"  # 入力PDFファイルのパス
 PERSIST_DIR = "./chroma_db"      # ベクトルDBの保存先
 
 # 埋め込みモデルの設定
-MODEL_NAME = "kun432/cl-nagoya-ruri-large"  # Ollamaの埋め込みモデル名
+MODEL_NAME = "jeffh/intfloat-multilingual-e5-large:f16"  # Ollamaの埋め込みモデル名
 
 def process_pdf(pdf_path: str, persist_dir: str) -> None:
     """
@@ -44,15 +44,13 @@ def process_pdf(pdf_path: str, persist_dir: str) -> None:
 
     # 3. チャンクをベクトル化してChromaDBに保存
     embeddings = OllamaEmbeddings(model=MODEL_NAME)
-    # # Azure OpenAI Embeddings
-    # from langchain_openai import AzureOpenAIEmbeddings
-    # from dotenv import load_dotenv
-    # load_dotenv()  # .envの読込
-    # embeddings = AzureOpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = Chroma(
         persist_directory=persist_dir,
         embedding_function=embeddings
     )
+    # 埋め込みモデルのmultilingual-e5で必要なprefixを追加 (passage: )
+    for chunk in chunks:
+        chunk.page_content = "passage: " + chunk.page_content
     vectorstore.add_documents(chunks)
 
     # 4. チャンクの内容を確認用ファイルに出力
