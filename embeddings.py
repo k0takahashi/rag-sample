@@ -10,6 +10,7 @@ PERSIST_DIR = "./chroma_db"      # ベクトルDBの保存先
 
 # 埋め込みモデルの設定
 MODEL_NAME = "jeffh/intfloat-multilingual-e5-large:f16"  # Ollamaの埋め込みモデル名
+GPU_SERVER = "http://127.0.0.1:11434"
 
 def process_pdf(pdf_path: str, persist_dir: str) -> None:
     """
@@ -43,7 +44,7 @@ def process_pdf(pdf_path: str, persist_dir: str) -> None:
     chunks = text_splitter.split_documents(documents)
 
     # 3. チャンクをベクトル化してChromaDBに保存
-    embeddings = OllamaEmbeddings(model=MODEL_NAME)
+    embeddings = OllamaEmbeddings(base_url=GPU_SERVER, model=MODEL_NAME)
     vectorstore = Chroma(
         persist_directory=persist_dir,
         embedding_function=embeddings
